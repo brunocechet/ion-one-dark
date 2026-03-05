@@ -1,0 +1,81 @@
+name: Release Extension
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: true
+
+jobs:
+  release:
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.RELEASE_PUSH_TOKEN != '' && secrets.RELEASE_PUSH_TOKEN || github.token }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine release bump
+        id: bump
+        run: |
+          BUMP="$(node scripts/determine-bump.mjs "${{ github.event.before }}" "${{ github.sha }}")"
+          echo "level=${BUMP}" >> "${GITHUB_OUTPUT}"
+          echo "Selected release bump: ${BUMP}"
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump extension version
+        id: version
+        run: |
+          npm version "${{ steps.bump.outputs.level }}" -m "chore(release): %s [skip ci]"
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Released version: ${VERSION}"
+
+      - name: Build VSIX package
+        id: package
+        run: |
+          EXTENSION_NAME="$(node -p "require('./package.json').name")"
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p dist
+          VSIX_PATH="dist/${EXTENSION_NAME}-${VERSION}.vsix"
+          npx @vscode/vsce package --out "${VSIX_PATH}"
+          echo "path=${VSIX_PATH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish --packagePath "${{ steps.package.outputs.path }}" --pat "${VSCE_PAT}"
+
+      - name: Push release commit and tag
+        run: git push origin HEAD:main --follow-tags
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-${{ steps.version.outputs.version }}
+          path: ${{ steps.package.outputs.path }}
+          if-no-files-found: error
