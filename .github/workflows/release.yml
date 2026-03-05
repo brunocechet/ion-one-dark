@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      base_ref:
+        description: Optional base commit SHA or tag for release bump range
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -20,14 +25,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: main
           token: ${{ secrets.RELEASE_PUSH_TOKEN != '' && secrets.RELEASE_PUSH_TOKEN || github.token }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -38,7 +43,17 @@ jobs:
       - name: Determine release bump
         id: bump
         run: |
-          BUMP="$(node scripts/determine-bump.mjs "${{ github.event.before }}" "${{ github.sha }}")"
+          BASE_REF="${{ github.event.before }}"
+
+          if [ -z "${BASE_REF}" ]; then
+            BASE_REF="${{ inputs.base_ref }}"
+          fi
+
+          if [ -z "${BASE_REF}" ]; then
+            BASE_REF="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          fi
+
+          BUMP="$(node scripts/determine-bump.mjs "${BASE_REF}" "${{ github.sha }}")"
           echo "level=${BUMP}" >> "${GITHUB_OUTPUT}"
           echo "Selected release bump: ${BUMP}"
 
@@ -64,6 +79,15 @@ jobs:
           VSIX_PATH="dist/${EXTENSION_NAME}-${VERSION}.vsix"
           npx @vscode/vsce package --out "${VSIX_PATH}"
           echo "path=${VSIX_PATH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Validate publish credentials
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "${VSCE_PAT}" ]; then
+            echo "::error::Missing VSCE_PAT secret. Configure VSCE_PAT before running release."
+            exit 1
+          fi
 
       - name: Publish to VS Code Marketplace
         env:

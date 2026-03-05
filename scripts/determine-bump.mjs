@@ -15,14 +15,25 @@ const isZeroSha = /^0+$/;
 
 const readCommitMessages = () => {
     const args = ["log", "--format=%B"];
+    const hasBeforeRange = Boolean(before) && !isZeroSha.test(before);
 
-    if (before && !isZeroSha.test(before)) {
+    if (hasBeforeRange) {
         args.push(`${before}..${after}`);
     } else {
         args.push("-n", "1", after);
     }
 
-    return execFileSync("git", args, { encoding: "utf8" });
+    try {
+        return execFileSync("git", args, { encoding: "utf8" });
+    } catch (error) {
+        const originalMessage = error instanceof Error ? error.message : String(error);
+        const rangeDescription = hasBeforeRange ? `${before}..${after}` : `-n 1 ${after}`;
+
+        throw new Error(
+            `Failed to read commit messages in readCommitMessages (before="${before}", after="${after}", range="${rangeDescription}"): ${originalMessage}`,
+            { cause: error },
+        );
+    }
 };
 
 const commitMessages = readCommitMessages();
