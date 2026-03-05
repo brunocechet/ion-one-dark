@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Packaged extension (vsce package)
+*.vsix
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/

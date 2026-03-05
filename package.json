@@ -1,0 +1,71 @@
+{
+    "name": "ion-one-dark",
+    "displayName": "Ion One Dark Theme",
+    "description": "Ion One Dark Theme is a One Dark-inspired color theme for Visual Studio Code and Cursor, tuned for contrast, readability, and long coding sessions.",
+    "version": "1.0.1",
+    "publisher": "brunocechet",
+    "license": "SEE LICENSE IN LICENSE",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/brunocechet/ion-one-dark.git"
+    },
+    "bugs": {
+        "url": "https://github.com/brunocechet/ion-one-dark/issues"
+    },
+    "homepage": "https://github.com/brunocechet/ion-one-dark#readme",
+    "icon": "images/icon-256.png",
+    "galleryBanner": {
+        "color": "#1f2430",
+        "theme": "dark"
+    },
+    "pricing": "Free",
+    "markdown": "github",
+    "keywords": [
+        "theme",
+        "color-theme",
+        "dark-theme",
+        "vscode-theme",
+        "cursor",
+        "cursor-theme",
+        "cursor-ide",
+        "one-dark",
+        "atom",
+        "atom-one-dark",
+        "high-contrast",
+        "syntax-highlighting",
+        "ide-theme",
+        "developer-productivity",
+        "ion",
+        "ion-one-dark"
+    ],
+    "files": [
+        "themes/**",
+        "images/**",
+        "README.md",
+        "LICENSE",
+        "CHANGELOG.md",
+        "package.json"
+    ],
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Ion One Dark Theme",
+                "uiTheme": "vs-dark",
+                "path": "./themes/ion-one-dark.json"
+            }
+        ]
+    },
+    "scripts": {
+        "package": "vsce package",
+        "publish": "vsce publish"
+    },
+    "devDependencies": {
+        "@vscode/vsce": "^3.7.1"
+    }
+}
