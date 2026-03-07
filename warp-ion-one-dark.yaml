@@ -1,0 +1,29 @@
+name: Ion One Dark # Name for the theme
+accent: # Accent gradient for UI highlights
+  left: '#c678dd'
+  right: '#56b6c2'
+cursor: '#61afef' # Input cursor color
+background: # Background gradient
+  top: '#21252b'
+  bottom: '#333842'
+foreground: '#ffffff' # The foreground color
+details: darker # Whether the theme is lighter or darker
+terminal_colors: # Ansi escape colors
+  bright:
+    black: '#666666'
+    blue: '#75beff'
+    cyan: '#29b8db'
+    green: '#89d185'
+    magenta: '#d670d6'
+    red: '#f44747'
+    white: '#ffffff'
+    yellow: '#f5f543'
+  normal:
+    black: '#000000'
+    blue: '#61afef'
+    cyan: '#56b6c2'
+    green: '#98c379'
+    magenta: '#c678dd'
+    red: '#e06c75'
+    white: '#abb2bf'
+    yellow: '#e5c07b'
