@@ -83,16 +83,22 @@ jobs:
       - name: Validate publish credentials
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
           if [ -z "${VSCE_PAT}" ]; then
             echo "::error::Missing VSCE_PAT secret. Configure VSCE_PAT before running release."
             exit 1
           fi
+          if [ -z "${OVSX_PAT}" ]; then
+            echo "::error::Missing OVSX_PAT secret. Configure OVSX_PAT before running release."
+            exit 1
+          fi
 
-      - name: Publish to VS Code Marketplace
+      - name: Publish release to registries
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx @vscode/vsce publish --packagePath "${{ steps.package.outputs.path }}" --pat "${VSCE_PAT}"
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: npm run release:publish -- "${{ steps.package.outputs.path }}"
 
       - name: Push release commit and tag
         run: git push origin HEAD:main --follow-tags

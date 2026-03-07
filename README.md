@@ -38,6 +38,7 @@ If you are looking for a clean **One Dark theme for VS Code and Cursor** with pr
 npm install
 npm run package
 code --install-extension ion-one-dark-<version>.vsix
+cursor --install-extension ion-one-dark-<version>.vsix
 ```
 
 ## Activate the Theme
