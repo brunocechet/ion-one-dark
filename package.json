@@ -2,7 +2,7 @@
     "name": "ion-one-dark",
     "displayName": "Ion One Dark Theme",
     "description": "Ion One Dark Theme is a One Dark-inspired color theme for Visual Studio Code and Cursor, tuned for contrast, readability, and long coding sessions.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "brunocechet",
     "license": "MPL-2.0",
     "repository": {
